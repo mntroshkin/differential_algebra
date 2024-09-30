@@ -49,6 +49,8 @@ class Variable:
         self.representation = representation or identifier
 
     def set_representation(self, new_rep):
+        if not isinstance(new_rep, str):
+            raise TypeError
         if not new_rep:
             raise ValueError("Representation string must be non-empty.")
         self.representation = new_rep
@@ -233,3 +235,86 @@ class DiffPolynomial:
             if m.factors == factors:
                 return m.coefficient
         return Fraction(0)
+
+class Mapping:
+    source: DiffAlgebra
+    target: DiffAlgebra
+    components: dict
+
+    def __init__(self, source, target, components):
+        if not isinstance(source, DiffAlgebra) or not isinstance(target, DiffAlgebra):
+            raise TypeError
+        self.source = source
+        self.target = target
+        if not isinstance(components, dict):
+            raise TypeError
+        if sorted(components.keys()) != sorted(source.get_all_ids()):
+            raise KeyError
+        for var_id in source.get_all_ids():
+            if not isinstance(components[var_id], DiffPolynomial):
+                raise TypeError
+            if components[var_id].algebra != target:
+                raise TypeError
+        self.components = components
+
+    def apply(self, polynomial):
+        if not isinstance(polynomial, DiffPolynomial):
+            raise TypeError
+        if polynomial.algebra != self.source:
+            raise TypeError
+        summands = []
+        for monomial in polynomial.monomials:
+            product = DiffPolynomial(self.target, monomial.coefficient)
+            for var_id in self.source.get_all_ids():
+                degrees = monomial.factors[var_id]
+                for part in degrees:
+                    product *= self.components[var_id].diff_x(part)
+            summands.append(product)
+        return sum(summands)
+
+    def __mul__(self, other):
+        if not isinstance(other, Mapping):
+            raise TypeError
+        if not self.source == other.target:
+            raise TypeError
+        prod_components = {var_id : self.apply(other.components[var_id]) for var_id in other.source.get_all_ids()}
+        return Mapping(other.source, self.target, prod_components)
+
+
+class Derivation:
+    def __init__(self, algebra, components):
+        if not isinstance(algebra, DiffAlgebra):
+            raise TypeError
+        self.algebra = algebra
+        if not isinstance(components, dict):
+            raise TypeError
+        if sorted(components.keys()) != sorted(algebra.get_all_ids()):
+            raise KeyError
+        for var_id in algebra.get_all_ids():
+            if not isinstance(components[var_id], DiffPolynomial):
+                raise TypeError
+            if components[var_id].algebra != algebra:
+                raise TypeError
+        self.components = components
+
+    def apply(self, polynomial: DiffPolynomial) -> DiffPolynomial:
+        if not isinstance(polynomial, DiffPolynomial):
+            raise TypeError
+        if polynomial.algebra != self.algebra:
+            raise TypeError
+        summands = []
+        for var_id in self.algebra.get_all_ids():
+            for j in range(polynomial.max_degree() + 1):
+                summands.append(self.components[var_id].diff_x(j) * polynomial.diff_wrt_variable(var_id, j))
+        return sum(summands)
+
+    def __matmul__(self, other: Self) -> Self:
+        if not isinstance(other, Derivation):
+            raise TypeError
+        if not self.algebra == other.algebra:
+            raise TypeError
+        commutator_components = dict()
+        for var_id in self.algebra.get_all_ids():
+            var = self.algebra.get_variable(var_id)
+            commutator_components[var_id] = self.apply(other.apply(var)) - other.apply(self.apply(var))
+        return Derivation(self.algebra, commutator_components)

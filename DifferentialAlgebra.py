@@ -6,12 +6,8 @@ class DiffAlgebra:
     def __init__(self, variable_identifiers):
         self.variables = dict()
         for var_id in variable_identifiers:
-            if not isinstance(var_id, str):
-                raise TypeError("Variable identifier must be a non-empty string")
             if var_id in self.variables.keys():
                 raise KeyError("Variable identifiers must be unique within each algebra")
-            elif var_id == "":
-                raise ValueError("Variable identifier must be a non-empty string")
             self.variables[var_id] = Variable(self, var_id)
 
     def is_element(self, expression):
@@ -51,6 +47,13 @@ class DiffAlgebra:
 
 class Variable:
     def __init__(self, algebra, identifier, representation=None):
+        representation = representation or identifier
+        if not isinstance(algebra, DiffAlgebra):
+            raise TypeError
+        if not isinstance(identifier, str) or not isinstance(representation, str):
+            raise TypeError
+        if identifier == "" or representation == "":
+            raise ValueError
         self.algebra = algebra
         self.identifier = identifier
         self.representation = representation or identifier
@@ -89,7 +92,7 @@ class DiffMonomial:
         return tuple(zip(self.factors.keys(), self.factors.values()))
 
     def __str__(self):
-        if self.coefficient != 1 or self.factors == []:
+        if self.coefficient != 1 or self.max_degree() == -1:
             coef_str = str(self.coefficient) + '*'
         else:
             coef_str = ''
@@ -115,7 +118,7 @@ class DiffMonomial:
         return DiffPolynomial(self.algebra, self)
 
     def max_degree(self):
-        return max([max(self.factors[var_id]) for var_id in self.algebra.get_all_ids()])
+        return max([max(self.factors[var_id] + (-1,)) for var_id in self.algebra.get_all_ids()])
 
 
 class DiffPolynomial:

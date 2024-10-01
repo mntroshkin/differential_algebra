@@ -81,7 +81,8 @@ class DiffMonomial:
         self.algebra = algebra
         self.factors = {var_id : tuple() for var_id in self.algebra.variables.keys()}
         if isinstance(partitions, dict):
-            self.factors = self.algebra.partitions_normal_form(partitions)
+            if coefficient != 0:
+                self.factors = self.algebra.partitions_normal_form(partitions)
             self.coefficient = Fraction(coefficient)
         elif isinstance(partitions, int) or isinstance(partitions, Fraction):
             self.coefficient = Fraction(partitions * coefficient)
@@ -93,7 +94,7 @@ class DiffMonomial:
 
     def __str__(self):
         if self.coefficient != 1 or self.max_degree() == -1:
-            coef_str = str(self.coefficient) + '*'
+            coef_str = str(self.coefficient)
         else:
             coef_str = ''
         degree_str = []
@@ -115,7 +116,7 @@ class DiffMonomial:
         return coef_str + '*'.join(degree_str)
 
     def to_polynomial(self):
-        return DiffPolynomial(self.algebra, self)
+        return DiffPolynomial(self.algebra, [self])
 
     def max_degree(self):
         return max([max(self.factors[var_id] + (-1,)) for var_id in self.algebra.get_all_ids()])
@@ -126,11 +127,15 @@ class DiffPolynomial:
     monomials: list[DiffMonomial]
 
     def __init__(self, algebra, argument):
+        if not isinstance(algebra, DiffAlgebra):
+            raise TypeError
         self.algebra = algebra
         if isinstance(argument, list):
             self.monomials = []
             for monomial in argument:
                 if not isinstance(monomial, DiffMonomial):
+                    raise TypeError
+                if monomial.algebra != algebra:
                     raise TypeError
             argument.sort(key=lambda monomial: monomial.factors_tuple())
             i = 0
@@ -144,19 +149,33 @@ class DiffPolynomial:
                 if coefficient_sum != 0:
                     self.monomials.append(DiffMonomial(algebra, factors_dict, coefficient_sum))
         elif isinstance(argument, DiffPolynomial):
+            if self.algebra != algebra:
+                raise TypeError
             self.monomials = argument.monomials[:]
-        elif isinstance(argument, DiffMonomial):
-            self.monomials = [argument]
-        elif isinstance(argument, Variable):
-            self.monomials = [argument.diff_monomial([0])]
         elif isinstance(argument, Fraction) or isinstance(argument, int):
-            self.monomials = [DiffMonomial(algebra, argument)]
+            if argument != 0:
+                self.monomials = [DiffMonomial(algebra, argument)]
+            else:
+                self.monomials = []
+        else:
+            raise TypeError
 
     def __str__(self):
         if len(self.monomials) == 0:
             return '0'
         else:
             return ' + '.join(map(str, self.monomials))
+
+    def __eq__(self, other):
+        if isinstance(other, int) or isinstance(other, Fraction):
+            return self == DiffPolynomial(self.algebra, other)
+        if isinstance(other, DiffPolynomial):
+            if not self.algebra == other.algebra:
+                raise TypeError
+            factors_eq = (tuple([m1.factors_tuple() for m1 in self.monomials]) == tuple([m2.factors_tuple() for m2 in other.monomials]))
+            coefficients_eq = (tuple([m1.coefficient for m1 in self.monomials]) == tuple([m2.coefficient for m2 in other.monomials]))
+            return factors_eq and coefficients_eq
+        return NotImplemented
 
     def __add__(self, other) -> Self:
         if not self.algebra.is_element(other):

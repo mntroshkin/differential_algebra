@@ -14,6 +14,13 @@ class DiffAlgebra:
                 raise ValueError("Variable identifier must be a non-empty string")
             self.variables[var_id] = Variable(self, var_id)
 
+    def is_element(self, expression):
+        if isinstance(expression, int) or isinstance(expression, Fraction):
+            return True
+        if isinstance(expression, DiffPolynomial) and expression.algebra == self:
+            return True
+        return False
+
     def partitions_normal_form(self, partitions):
         factors = {var_id : tuple() for var_id in self.variables.keys()}
         if isinstance(partitions, dict):
@@ -149,14 +156,10 @@ class DiffPolynomial:
             return ' + '.join(map(str, self.monomials))
 
     def __add__(self, other) -> Self:
-        if isinstance(other, DiffPolynomial):
-            if self.algebra != other.algebra:
-                raise TypeError("Expressions from different algebras cannot be added")
-            return DiffPolynomial(self.algebra, self.monomials + other.monomials)
-        elif isinstance(other, int) or isinstance(other, Fraction):
-            return self + DiffPolynomial(self.algebra, other)
-        else:
-            raise TypeError
+        if not self.algebra.is_element(other):
+            return NotImplemented
+        other = DiffPolynomial(self.algebra, other)
+        return DiffPolynomial(self.algebra, self.monomials + other.monomials)
 
     def __radd__(self, other):
         return self + other
@@ -168,21 +171,17 @@ class DiffPolynomial:
         return self * (-1) + other
 
     def __mul__(self, other) -> Self:
-        if isinstance(other, DiffPolynomial):
-            if self.algebra != other.algebra:
-                raise TypeError("Expressions from different algebras cannot be multiplied")
-            product_monomials = []
-            for m1 in self.monomials:
-                for m2 in other.monomials:
-                    product_factors = {var_id: m1.factors[var_id] + m2.factors[var_id] for var_id in self.algebra.get_all_ids()}
-                    product_coefficient = m1.coefficient * m2.coefficient
-                    product_monomial = DiffMonomial(self.algebra, product_factors, product_coefficient)
-                    product_monomials.append(product_monomial)
-            return DiffPolynomial(self.algebra, product_monomials)
-        elif  isinstance(other, int) or isinstance(other, Fraction):
-            return self * DiffPolynomial(self.algebra, other)
-        else:
-            raise TypeError
+        if not self.algebra.is_element(other):
+            return NotImplemented
+        other = DiffPolynomial(self.algebra, other)
+        product_monomials = []
+        for m1 in self.monomials:
+            for m2 in other.monomials:
+                product_factors = {var_id: m1.factors[var_id] + m2.factors[var_id] for var_id in self.algebra.get_all_ids()}
+                product_coefficient = m1.coefficient * m2.coefficient
+                product_monomial = DiffMonomial(self.algebra, product_factors, product_coefficient)
+                product_monomials.append(product_monomial)
+        return DiffPolynomial(self.algebra, product_monomials)
 
     def __rmul__(self, other):
         return self * other
@@ -246,22 +245,20 @@ class Mapping:
             raise TypeError
         self.source = source
         self.target = target
+        self.components = dict()
         if not isinstance(components, dict):
             raise TypeError
         if sorted(components.keys()) != sorted(source.get_all_ids()):
             raise KeyError
         for var_id in source.get_all_ids():
-            if not isinstance(components[var_id], DiffPolynomial):
+            if not target.is_element(components[var_id]):
                 raise TypeError
-            if components[var_id].algebra != target:
-                raise TypeError
-        self.components = components
+            self.components[var_id] = DiffPolynomial(target, components[var_id])
 
     def apply(self, polynomial):
-        if not isinstance(polynomial, DiffPolynomial):
+        if not self.source.is_element(polynomial):
             raise TypeError
-        if polynomial.algebra != self.source:
-            raise TypeError
+        polynomial = DiffPolynomial(self.target, polynomial)
         summands = []
         for monomial in polynomial.monomials:
             product = DiffPolynomial(self.target, monomial.coefficient)
@@ -286,22 +283,20 @@ class Derivation:
         if not isinstance(algebra, DiffAlgebra):
             raise TypeError
         self.algebra = algebra
+        self.components = dict()
         if not isinstance(components, dict):
             raise TypeError
         if sorted(components.keys()) != sorted(algebra.get_all_ids()):
             raise KeyError
         for var_id in algebra.get_all_ids():
-            if not isinstance(components[var_id], DiffPolynomial):
+            if not algebra.is_element(components[var_id]):
                 raise TypeError
-            if components[var_id].algebra != algebra:
-                raise TypeError
-        self.components = components
+            self.components[var_id] = DiffPolynomial(algebra, components[var_id])
 
-    def apply(self, polynomial: DiffPolynomial) -> DiffPolynomial:
-        if not isinstance(polynomial, DiffPolynomial):
+    def apply(self, polynomial) -> DiffPolynomial:
+        if not self.algebra.is_element(polynomial):
             raise TypeError
-        if polynomial.algebra != self.algebra:
-            raise TypeError
+        polynomial = DiffPolynomial(self.algebra, polynomial)
         summands = []
         for var_id in self.algebra.get_all_ids():
             for j in range(polynomial.max_degree() + 1):

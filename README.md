@@ -1,6 +1,6 @@
-# `differential-algebra` package
+# `differential_algebra` package
 
-The `differential-algebra` package is created to manipulate expressions in commutative and anticommutative free  differential algebras.
+The `differential_algebra` package is created to manipulate expressions in commutative and anticommutative free  differential algebras.
 
 ## Mathematical background
 

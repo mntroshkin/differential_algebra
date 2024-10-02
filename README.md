@@ -37,9 +37,15 @@ vxx = v.diff_x(2)
 Display format of expressions:
 ```python
 print(ux)                      // u_1
-print(vxx)                     // v_2
-print((ux - vxx) * (ux + vxx)) // -1(v_2)^2 + (u_1)^2
+print(vxx)                     						// u_1
+print(vxx)						// v_2
+print((ux - vxx) * (ux + vxx)) 	// -1(v_2)^2 + (u_1)^2
+```
+Creating an evolutionary operator by defining it on the generators, and applying it to an expression:
+```python
+phi = da.Derivation(A, {"u" : ux, "v" : u * vxx})
+
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTczMTk5MDcxNV19
+eyJoaXN0b3J5IjpbLTgxMjI2NDc4OCwxNzMxOTkwNzE1XX0=
 -->

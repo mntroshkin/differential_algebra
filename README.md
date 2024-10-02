@@ -46,5 +46,5 @@ phi = da.Derivation(A, {"u" : ux, "v" : u * vxx})
 print(phi.apply(vxx + ux * ux)) // u*v_4 + 2u_1*v_3 + 2u_1*u_2 + u_2*v_2
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQwOTY5MzY5MCwxNzMxOTkwNzE1XX0=
+eyJoaXN0b3J5IjpbMTQwOTY5MzY5MF19
 -->

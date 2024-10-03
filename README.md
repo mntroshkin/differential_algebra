@@ -24,12 +24,12 @@ Creating an object representing a commutative free differential algebra in two v
 ```python
 A = da.DiffAlgebra(["u", "v"])
 ```
-Obtaining variables as an expressions, which can be used in operations, from the algebra object:
+Obtaining variables as expressions, which can be used in operations, from the algebra object:
 ```python
 u = A.get_variable("u")
 v = A.get_variable("v")
 ```
-Applying the derivation $\partial_x$ to the variables:
+Applying the derivation $\partial_x$, or its powers, to the variables:
 ```python
 ux = u.diff_x()
 vxx = v.diff_x(2)

@@ -19,7 +19,7 @@ We understand free differential variables $u^i$ as symbols for functions $u^i(x)
 Importing the module:
 ```python
 from PolynomialAlgebra import Algebra
-from Differential Algebra import DiffAlgebra
+from DifferentialAlgebra import DiffAlgebra
 ```
 Creating objects representing a polynomial algebra $R$ in one variable and a differential algebra $A$ over $R$ in two variables:
 ```python

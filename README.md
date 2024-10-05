@@ -15,8 +15,8 @@ Concretely, we have $\mathrm{fda}(u^1, \dots, u^N) = R[u^i_{(j)}]$ where $i=1\do
   
 We understand free differential variables $u^i$ as symbols for functions $u^i(x)$, and identify $\partial$ with $\partial_x := \frac{\partial}{\partial x}$.  
 
-A *derivation*, or an *evolutionary operator*, of is an $R$
-  
+A *derivation*, or an *evolutionary operator*, on a differential $R$-algebra $(A, \partial)$ is an $R$-linear map $D: A \to A$ such that $D$ commutes with $\partial$. The commutator $[D, D']$ of two evolutionary operators is again an evolutionary operator.
+
 ## Usage example  
   
 Importing the module:  
@@ -62,5 +62,5 @@ tau = phi @ psi      # notation for the commutator tau = [phi, psi]
 print(tau.apply(w))  # 0  
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwOTAwOTcyMzldfQ==
+eyJoaXN0b3J5IjpbLTE2NjE5MTU0MzRdfQ==
 -->

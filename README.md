@@ -58,9 +58,9 @@ B = DiffAlgebra(["w"], R)
 w = B.get_variable("w")  
 D1 = Derivation(B, {"w" : (w * w).diff_x()})  
 D2 = Derivation(B, {"w" : (w * w * w).diff_x()})  
-C = D1 @ D2           # notation for the commutator tau = [phi, psi]  
-print(tau.apply(w))  # 0  
+C = D1 @ D2          # notation for the commutator C = [D1, D2]  
+print(C.apply(w))    # 0  
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTc3NzY0MDE5MV19
+eyJoaXN0b3J5IjpbLTEwNTQyNTU5MjNdfQ==
 -->

@@ -49,18 +49,18 @@ print((1 - t) * ux * (t + 1) * v)  # (1 + -1*t^2)*u_1*v
 ```  
 Creating an evolutionary operator by defining it on the generators, and applying it to an expression:  
 ```python  
-f = Derivation(A, {"u" : ux, "v" : u * vxx})  
-print(f.apply(vxx + ux * ux))      # u*v_4 + 2*u_1*v_3 + 2*u_1*u_2 + u_2*v_2  
+D = Derivation(A, {"u" : ux, "v" : u * vxx})  
+print(D.apply(vxx + ux * ux))      # u*v_4 + 2*u_1*v_3 + 2*u_1*u_2 + u_2*v_2  
 ```  
 Checking that two evolutionary operators from the Riemann-Hopf hierarchy commute:  
 ```python  
 B = DiffAlgebra(["w"], R)  
 w = B.get_variable("w")  
-phi = Derivation(B, {"w" : (w * w).diff_x()})  
-psi = Derivation(B, {"w" : (w * w * w).diff_x()})  
-tau = phi @ psi      # notation for the commutator tau = [phi, psi]  
+D1 = Derivation(B, {"w" : (w * w).diff_x()})  
+D2 = Derivation(B, {"w" : (w * w * w).diff_x()})  
+C = D1 @ D2           # notation for the commutator tau = [phi, psi]  
 print(tau.apply(w))  # 0  
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE2NjE5MTU0MzRdfQ==
+eyJoaXN0b3J5IjpbLTc3NzY0MDE5MV19
 -->

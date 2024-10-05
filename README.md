@@ -78,13 +78,40 @@ Let's print some expressions involving derivatives and combinations of terms:
 ```python
 print(ux)                          # Output: u_1 (first derivative of u)
 print(vxx)                         # Output: v_2 (second derivative of v)
-print((ux - vxx) * (ux + vxx))     # Output: (u_1)^2 - (v_2)^2
+print((ux - vxx) * (ux + vxx))     # Output: -1*(v_2)^2 + (u_1)^2
 print((1 - t) * ux * (t + 1) * v)  # Output: (1 + -1*t^2)*u_1*v
 ```
 
 The expressions are automatically simplified and displayed in a user-friendly format.
 
-### 5. Defining an evolutionary operator
+
+### 5. Extracting coefficients from an expression
+
+The method `.coefficient()` is used for extracting coefficients of individual monomials with given exponents from an ordinary or a differential polynomial.
+
+Coefficients of ordinary polynomials are rational numbers:
+
+```python
+P = (1 + t) * (1 - t) * (2 + 3 * t)    # P = 2 + 3*t + -2*t^2 + -3*t^3
+print(P.coefficient(t * t))            # Output: -2
+```
+
+Coefficients of differential polynomials are polynomials in the base algebra:
+
+```python
+F = (1 + t + t * ux) * (2 - t + (3 + t) * vxx)
+print(F.coefficient(ux * vxx))         # Output: 3*t + t^2
+print(F.coefficient(u))                # Output: 0
+```
+
+The method .coefficient() accepts a Polynomial expression that contains exactly one monomial as its argument and returns the coefficient of a term with matching exponents. If the argument is a polynomial containing zero or more than one monomial, a ValueError will be raised.
+
+```python
+print(F.coefficient(0))            # raises a ValueError, because `0` has zero monomials
+print(F.coefficient(u + v))        # raises a ValueError, because the argument has more than one monomial
+```
+
+### 6. Defining an evolutionary operator
 
 An *evolutionary operator* is defined by its action on the generators of the algebra. We specify how the operator `D` acts on `u` and `v`:
 
@@ -98,7 +125,7 @@ This defines $D(u) = \partial_x u$ and $D(v) = u \cdot \partial_x^2 v$. Now, we 
 print(D.apply(vxx + ux * ux))  # Output: u*v_4 + 2*u_1*v_3 + 2*u_1*u_2 + u_2*v_2
 ```
 
-### 6. Commutators of evolutionary operators
+### 7. Commutators of evolutionary operators
 
 We now create two differential operators $D_1$ and $D_2$ that act on a variable `w` in another differential algebra. The commutator of $D_1$ and $D_2$ is computed to check whether they commute:
 

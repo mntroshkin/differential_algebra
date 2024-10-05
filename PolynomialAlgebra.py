@@ -200,12 +200,22 @@ class GeneralPolynomial:
     def __rmul__(self, other):
         return self * other
 
-    def coefficient(self, exponents):
-        exponents = self.algebra.normalize_exponent_vector(exponents)
-        for m in self.monomials:
-            if m.exponents == exponents:
-                return m.coefficient
-        return 0
+    def coefficient(self, monomial):
+        if isinstance(monomial, self.algebra.MonomialType):
+            if not monomial.algebra == self.algebra:
+                raise TypeError
+            for m in self.monomials:
+                if m.exponents == monomial.exponents:
+                    return m.coefficient
+            return 0
+        elif isinstance(monomial, self.algebra.PolynomialType):
+            if not monomial.algebra == self.algebra:
+                raise TypeError
+            if len(monomial.monomials) != 1:
+                raise ValueError
+            return self.coefficient(monomial.monomials[0])
+        else:
+            raise TypeError
 
 
 GeneralAlgebra.CoefficientType = Fraction

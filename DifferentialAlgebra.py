@@ -107,7 +107,7 @@ DiffAlgebra.MonomialType = DiffMonomial
 DiffAlgebra.PolynomialType = DiffPolynomial
 
 
-class Mapping:
+class Homomorphism:
     source: DiffAlgebra
     target: DiffAlgebra
     components: dict
@@ -142,15 +142,15 @@ class Mapping:
         return sum(summands)
 
     def __mul__(self, other):
-        if not isinstance(other, Mapping):
+        if not isinstance(other, Homomorphism):
             raise TypeError
         if not self.source == other.target:
             raise TypeError
         prod_components = {var_id : self.apply(other.components[var_id]) for var_id in other.source.get_all_ids()}
-        return Mapping(other.source, self.target, prod_components)
+        return Homomorphism(other.source, self.target, prod_components)
 
 
-class Derivation:
+class EvolutionaryOperator:
     def __init__(self, algebra, components):
         if not isinstance(algebra, DiffAlgebra):
             raise TypeError
@@ -176,7 +176,7 @@ class Derivation:
         return sum(summands)
 
     def __matmul__(self, other):
-        if not isinstance(other, Derivation):
+        if not isinstance(other, EvolutionaryOperator):
             raise TypeError
         if not self.algebra == other.algebra:
             raise TypeError
@@ -184,4 +184,4 @@ class Derivation:
         for var_id in self.algebra.get_all_ids():
             var = self.algebra.get_variable(var_id)
             commutator_components[var_id] = self.apply(other.apply(var)) - other.apply(self.apply(var))
-        return Derivation(self.algebra, commutator_components)
+        return EvolutionaryOperator(self.algebra, commutator_components)

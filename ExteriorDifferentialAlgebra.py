@@ -2,7 +2,7 @@ from PolynomialAlgebra import GeneralAlgebra, GeneralMonomial, GeneralPolynomial
 from DifferentialAlgebra import DiffAlgebra, DiffPolynomial
 
 
-class GrassmannDiffAlgebra(GeneralAlgebra):
+class ExteriorDiffAlgebra(GeneralAlgebra):
     _empty_exponent = tuple()
     _default_exponent = (0, )
 
@@ -50,17 +50,17 @@ class GrassmannDiffAlgebra(GeneralAlgebra):
     def is_element(self, expression):
         if self.coefficient_algebra.is_element(expression):
             return True
-        if isinstance(expression, GrassmannDiffPolynomial) and expression.algebra == self:
+        if isinstance(expression, ExteriorDiffPolynomial) and expression.algebra == self:
             return True
         return False
 
 
-class GrassmannDiffMonomial(GeneralMonomial):
-    AlgebraType = GrassmannDiffAlgebra
+class ExteriorDiffMonomial(GeneralMonomial):
+    AlgebraType = ExteriorDiffAlgebra
 
     def __init__(self, algebra, exponents, coefficient=1):
         super().__init__(algebra, exponents, coefficient)
-        if not isinstance(algebra, GrassmannDiffAlgebra):
+        if not isinstance(algebra, ExteriorDiffAlgebra):
             raise TypeError
         if not algebra.coefficient_algebra.is_element(coefficient):
             raise TypeError
@@ -97,7 +97,7 @@ class GrassmannDiffMonomial(GeneralMonomial):
         return max([max(self.exponents[var_id] + (-1,)) for var_id in self.algebra.get_all_ids()])
 
 
-class GrassmannDiffPolynomial(GeneralPolynomial):
+class ExteriorDiffPolynomial(GeneralPolynomial):
     def __init__(self, algebra, argument):
         super().__init__(algebra, argument)
 
@@ -139,8 +139,8 @@ class GrassmannDiffPolynomial(GeneralPolynomial):
             for monomial in self.monomials:
                 coefficient = monomial.coefficient.diff_x()
                 exponents = monomial.exponents
-                new_monomial = GrassmannDiffMonomial(self.algebra, exponents, coefficient)
-                summands.append(GrassmannDiffPolynomial(self.algebra, [new_monomial]))
+                new_monomial = ExteriorDiffMonomial(self.algebra, exponents, coefficient)
+                summands.append(ExteriorDiffPolynomial(self.algebra, [new_monomial]))
             for var_id in self.algebra.get_all_ids():
                 for i in range(0, self.max_diff_degree() + 1):
                     dvar_i = self.algebra.get_monomial({var_id: (i + 1,)})
@@ -161,8 +161,14 @@ class GrassmannDiffPolynomial(GeneralPolynomial):
                 var_exponents = monomial.exponents[var_id][:var_index] + monomial.exponents[var_id][var_index + 1:]
                 new_exponents = {var_id2: (monomial.exponents[var_id2] if var_id2 != var_id else var_exponents) for var_id2 in
                                self.algebra.get_all_ids()}
-                summands.append(GrassmannDiffMonomial(self.algebra, new_exponents, new_coefficient))
-        return GrassmannDiffPolynomial(self.algebra, summands)
+                summands.append(ExteriorDiffMonomial(self.algebra, new_exponents, new_coefficient))
+        return ExteriorDiffPolynomial(self.algebra, summands)
+
+    def variational_derivative(self, var_id):
+        result = ExteriorDiffPolynomial(self.algebra, 0)
+        for i in range(0, self.max_diff_degree() + 1):
+            result += (-1) ** i + self.diff_wrt_variable(var_id, i).diff_x(i)
+        return result
 
 
 def signed_sort(lst):
@@ -179,7 +185,7 @@ def signed_sort(lst):
     return tuple(lst), sign
 
 
-GrassmannDiffAlgebra.CoefficientAlgebraType = DiffAlgebra
-GrassmannDiffAlgebra.CoefficientType = DiffPolynomial
-GrassmannDiffAlgebra.MonomialType = GrassmannDiffMonomial
-GrassmannDiffAlgebra.PolynomialType = GrassmannDiffPolynomial
+ExteriorDiffAlgebra.CoefficientAlgebraType = DiffAlgebra
+ExteriorDiffAlgebra.CoefficientType = DiffPolynomial
+ExteriorDiffAlgebra.MonomialType = ExteriorDiffMonomial
+ExteriorDiffAlgebra.PolynomialType = ExteriorDiffPolynomial

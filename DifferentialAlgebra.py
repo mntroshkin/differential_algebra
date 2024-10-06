@@ -1,4 +1,5 @@
 from PolynomialAlgebra import GeneralAlgebra, GeneralMonomial, GeneralPolynomial, Algebra, Polynomial
+import math
 
 
 class DiffAlgebra(GeneralAlgebra):
@@ -28,6 +29,9 @@ class DiffAlgebra(GeneralAlgebra):
             if diff_degree < 0:
                 raise ValueError
         return tuple(sorted(exponent))
+
+    def get_partial(self):
+        return DifferentialOperator(self, (0, 1))
 
 
 class DiffMonomial(GeneralMonomial):
@@ -66,7 +70,7 @@ class DiffPolynomial(GeneralPolynomial):
         super().__init__(algebra, argument)
 
     def max_diff_degree(self):
-        return max([m.max_diff_degree() for m in self.monomials])
+        return max([m.max_diff_degree() for m in self.monomials] + [-1])
 
     def diff_x(self, n=1):
         if n == 0:
@@ -99,6 +103,13 @@ class DiffPolynomial(GeneralPolynomial):
             if sum([m.exponents[var_id].count(0) for var_id in self.algebra.get_all_ids()]) == 0:
                 summands.append(m)
         return DiffPolynomial(self.algebra, summands)
+
+    def variational_derivative(self, var_id):
+        result = DiffPolynomial(self.algebra, 0)
+        for i in range(0, self.max_diff_degree() + 1):
+            result += (-1) ** i * self.diff_wrt_variable(var_id, i).diff_x(i)
+        return result
+
 
 
 DiffAlgebra.CoefficientAlgebraType = Algebra
@@ -185,3 +196,91 @@ class EvolutionaryOperator:
             var = self.algebra.get_variable(var_id)
             commutator_components[var_id] = self.apply(other.apply(var)) - other.apply(self.apply(var))
         return EvolutionaryOperator(self.algebra, commutator_components)
+
+
+class DifferentialOperator:
+    def __init__(self, algebra, coefficients):
+        if not isinstance(algebra, DiffAlgebra):
+            raise TypeError
+        self.algebra = algebra
+        for coefficient in coefficients:
+            if not self.algebra.is_element(coefficient):
+                raise TypeError
+        i = len(coefficients) - 1
+        while coefficients[i] == 0:
+            i -= 1
+        coefficients = coefficients[:i + 1]
+        self.coefficients = tuple([DiffPolynomial(self.algebra, coefficient) for coefficient in coefficients])
+        self.order = len(self.coefficients) - 1
+
+    def __str__(self):
+        if self.order == -1:
+            return "0"
+        summands = []
+        for i in range(self.order, -1, -1):
+            factors = []
+            if self.coefficients[i] != 0:
+                if self.coefficients[i] != 1:
+                    factors.append(self.coefficients[i].str_parenthesis())
+                if i > 1:
+                    factors.append(f"∂^{i}")
+                elif i == 1:
+                    factors.append("∂")
+                summands.append("*".join(factors))
+        return "+".join(summands)
+
+    def apply(self, expression):
+        if not self.algebra.is_element(expression):
+            raise TypeError
+        expression = DiffPolynomial(self.algebra, expression)
+        result = DiffPolynomial(self.algebra, 0)
+        for i in range(self.order + 1):
+            result += self.coefficients[i] * expression.diff_x(i)
+        return result
+
+    def __add__(self, other):
+        if self.algebra.is_element(other):
+            return self + DifferentialOperator(self.algebra, [other])
+        elif isinstance(other, DifferentialOperator):
+            if self.algebra != other.algebra:
+                raise TypeError
+            result_coefficients = [0] * max(self.order + 1, other.order + 1)
+            for n in range(self.order + 1):
+                result_coefficients[n] += self.coefficients[n]
+            for m in range(other.order + 1):
+                result_coefficients[m] += other.coefficients[m]
+            return DifferentialOperator(self.algebra, result_coefficients)
+        else:
+            raise NotImplemented
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        return self + other * (-1)
+
+    def __rsub__(self, other):
+        return self * (-1) + other
+
+    def __mul__(self, other):
+        if self.algebra.is_element(other):
+            return self * DifferentialOperator(self.algebra, [other])
+        elif isinstance(other, DifferentialOperator):
+            if self.algebra != other.algebra:
+                raise TypeError
+            result_coefficients = [0] * (self.order + other.order + 1)
+            for n in range(self.order + 1):
+                for m in range(other.order + 1):
+                    for i in range(n + 1):
+                        coefficient = math.comb(n, i) * self.coefficients[n] * other.coefficients[m].diff_x(i)
+                        result_coefficients[n + m - i] += coefficient
+            return DifferentialOperator(self.algebra, result_coefficients)
+        else:
+            return NotImplemented
+
+    def __rmul__(self, other):
+        if self.algebra.is_element(other):
+            return DifferentialOperator(self.algebra, [other]) * self
+
+    def __matmul__(self, other):
+        return self * other - other * self

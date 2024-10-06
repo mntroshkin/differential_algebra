@@ -104,7 +104,7 @@ print(F.coefficient(ux * vxx))         # Output: 3*t + t^2
 print(F.coefficient(u))                # Output: 0
 ```
 
-The method .coefficient() accepts a Polynomial expression that contains exactly one monomial as its argument and returns the coefficient of a term with matching exponents. If the argument is a polynomial containing zero or more than one monomial, a ValueError will be raised.
+The method `.coefficient()` accepts a `Polynomial` expression that contains exactly one monomial as its argument and returns the coefficient of a term with matching exponents. If the argument is a polynomial containing zero or more than one monomial, a `ValueError` will be raised.
 
 ```python
 print(F.coefficient(0))            # raises a ValueError, because `0` has zero monomials

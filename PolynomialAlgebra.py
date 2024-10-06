@@ -19,7 +19,7 @@ class GeneralAlgebra:
         return tuple([var_id for var_id in self.variables.keys()])
 
     def is_coefficient(self, expression):
-        return isinstance(expression, int) or isinstance(self, Fraction)
+        return isinstance(expression, int) or isinstance(expression, Fraction)
 
     def is_element(self, expression):
         if self.is_coefficient(expression):
@@ -207,7 +207,7 @@ class GeneralPolynomial:
             for m in self.monomials:
                 if m.exponents == monomial.exponents:
                     return m.coefficient
-            return 0
+            return self.algebra.normalize_coefficient(0)
         elif isinstance(monomial, self.algebra.PolynomialType):
             if not monomial.algebra == self.algebra:
                 raise TypeError

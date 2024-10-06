@@ -72,12 +72,12 @@ class DiffPolynomial(GeneralPolynomial):
         if n == 0:
             return self
         if n == 1:
-            summands = []
+            result = DiffPolynomial(self.algebra, 0)
             for var_id in self.algebra.get_all_ids():
                 for i in range(0, self.max_diff_degree() + 1):
                     dvar_i = self.algebra.get_monomial({var_id : (i+1, )})
-                    summands.append(dvar_i * self.diff_wrt_variable(var_id, i))
-            return sum(summands)
+                    result += dvar_i * self.diff_wrt_variable(var_id, i)
+            return result
         else:
             return self.diff_x(n - 1).diff_x()
 
@@ -131,15 +131,15 @@ class Homomorphism:
         if not self.source.is_element(polynomial):
             raise TypeError
         polynomial = DiffPolynomial(self.source, polynomial)
-        summands = []
+        result = DiffPolynomial(self.target, 0)
         for monomial in polynomial.monomials:
             product = DiffPolynomial(self.target, monomial.coefficient)
             for var_id in self.source.get_all_ids():
                 exponents = monomial.exponents[var_id]
                 for diff_degree in exponents:
                     product *= self.components[var_id].diff_x(diff_degree)
-            summands.append(product)
-        return sum(summands)
+            result += product
+        return result
 
     def __mul__(self, other):
         if not isinstance(other, Homomorphism):
@@ -169,11 +169,11 @@ class EvolutionaryOperator:
         if not self.algebra.is_element(polynomial):
             raise TypeError
         polynomial = DiffPolynomial(self.algebra, polynomial)
-        summands = []
+        result = DiffPolynomial(self.algebra, 0)
         for var_id in self.algebra.get_all_ids():
             for j in range(polynomial.max_diff_degree() + 1):
-                summands.append(self.components[var_id].diff_x(j) * polynomial.diff_wrt_variable(var_id, j))
-        return sum(summands)
+                result += self.components[var_id].diff_x(j) * polynomial.diff_wrt_variable(var_id, j)
+        return result
 
     def __matmul__(self, other):
         if not isinstance(other, EvolutionaryOperator):

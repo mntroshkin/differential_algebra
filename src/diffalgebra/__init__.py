@@ -1,10 +1,10 @@
-from .constant_ring import ConstantPolyRing, QQ, ConstantPolynomial
+from .constant_ring import ConstantRing, QQ, ConstantPolynomial
 from .diff_ring import DifferentialRing, DifferentialPolynomial, total_derivative, partial_derivative
 from .ring_morphism import RingMorphism, DiffRingMorphism
 from .evolution_operator import EvolutionOperator
 from .kdv import KdV_flow
 
-__all__ = ["QQ", "ConstantPolyRing", "DifferentialRing", 
+__all__ = ["QQ", "ConstantRing", "DifferentialRing", 
            "ConstantPolynomial", "DifferentialPolynomial", 
            "total_derivative", "partial_derivative",
            "RingMorphism", "DiffRingMorphism", "EvolutionOperator",

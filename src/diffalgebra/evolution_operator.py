@@ -12,7 +12,7 @@ class EvolutionOperator:
                  name: Optional[str] = None):
         self._ring = ring
         _mapping = []
-        for gen_name in ring._func_names:
+        for gen_name in ring._gen_names:
             generator = ring.gen(gen_name)
             if generator not in mapping:
                 raise DefinitionError(f"Generator {gen_name} has no defined image")

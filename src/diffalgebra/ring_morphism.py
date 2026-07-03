@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .constant_ring import ConstantRing, ConstantGenerator, ConstantPolynomial, Constant, Term, QQ
+from .constant_ring import ConstantRing, ConstantGenerator, ConstantPolynomial, Constant, Monomial, QQ
 from .diff_ring import DifferentialRing, FuncGenerator, DifferentialPolynomial, Expression, DiffTerm
 from .exceptions import DefinitionError
 
@@ -33,7 +33,7 @@ class RingMorphism:
     def apply(self, expression: Constant) -> ConstantPolynomial:
         if not self._source.is_element(expression):
             raise TypeError(f"{expression} is not an element of {self._source}")
-        image_terms: list[Term] = []
+        image_terms: list[Monomial] = []
         expression = self._source.promote(expression)
         for monomial, coefficient in expression._terms:
             image_term = coefficient
@@ -47,7 +47,7 @@ class RingMorphism:
         
     @classmethod
     def identity(cls, ring: ConstantRing) -> RingMorphism:
-        return RingMorphism(source=ring, target=ring, mapping={gen: gen for gen in ring._generators.values()})
+        return RingMorphism(source=ring, target=ring, mapping={gen: gen for gen in ring.gens()})
 
 
 class DiffRingMorphism:
@@ -73,7 +73,7 @@ class DiffRingMorphism:
         self._source = source
         self._target = target
         _mapping = []
-        for gen_name in source._func_names:
+        for gen_name in source._gen_names:
             generator = source.gen(gen_name)
             if generator not in mapping:
                 raise DefinitionError(f"Generator {gen_name} has no defined image")

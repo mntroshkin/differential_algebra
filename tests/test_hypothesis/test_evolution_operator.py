@@ -2,7 +2,7 @@ from hypothesis import given, strategies as st, settings
 from .strategies import diff_polynomial, polynomial
 import diffalgebra as da
 
-R = da.ConstantPolyRing(constants=["t", "s"])
+R = da.ConstantRing(constants=["t", "s"])
 
 polynomial_small = polynomial(ring=R, max_terms=3)
 

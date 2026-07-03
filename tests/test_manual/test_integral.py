@@ -2,7 +2,7 @@ from fractions import Fraction
 import diffalgebra as da
 
 def test_integral_partial():
-    R = da.ConstantPolyRing(constants=["t"])
+    R = da.ConstantRing(constants=["t"])
     t = R.gen("t")
     f = t ** 2
     assert f.integral(t) == Fraction(1, 3) * t ** 3

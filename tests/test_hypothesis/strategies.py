@@ -1,20 +1,17 @@
 from hypothesis import strategies as st
 import diffalgebra as da
+from diffalgebra.constant_ring import Monomial
 
 
 @st.composite
-def polynomial(draw, ring: da.ConstantPolyRing, max_terms: int = 5) -> da.ConstantPolynomial:
-    gens = ring.gens()
-    gen_count = len(gens)
+def polynomial(draw, ring: da.ConstantRing, max_terms: int = 5) -> da.ConstantPolynomial:
+    gen_count = ring._gen_count
 
-    monomial_list = draw(st.lists(st.lists(st.integers(min_value=0, max_value=10), 
-                                    min_size=gen_count, max_size=gen_count),
-                        min_size=0, max_size=max_terms))
-    term_count = len(monomial_list)
-    monomial_list = map(tuple, monomial_list)
-    coef_list = draw(st.lists(st.integers(min_value=-5, max_value=5),
-                        min_size=term_count, max_size=term_count))
-    terms = list(zip(monomial_list, coef_list))
+    terms = draw(st.lists(st.builds(Monomial, 
+                                    exponents=st.lists(st.integers(min_value=0, max_value=5),
+                                                       min_size=gen_count, max_size=gen_count).map(tuple), 
+                                    coefficient=st.integers(min_value=-5, max_value=5)), 
+                            max_size=max_terms).map(tuple))
     return da.ConstantPolynomial(ring, terms)
 
 

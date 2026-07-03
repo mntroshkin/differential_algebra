@@ -1,8 +1,8 @@
 import diffalgebra as da
 
 def test_product_under_ring_morphism():
-    R = da.ConstantPolyRing(constants=["r", "s"])
-    S = da.ConstantPolyRing(constants=["t"])
+    R = da.ConstantRing(constants=["r", "s"])
+    S = da.ConstantRing(constants=["t"])
     r = R.gen("r")
     s = R.gen("s")
     t = S.gen("t")
@@ -10,8 +10,8 @@ def test_product_under_ring_morphism():
     assert phi(r * s) == (1 + t) * (2 + t)
 
 def test_powers_under_ring_morphism():
-    R = da.ConstantPolyRing(constants=["t"])
-    S = da.ConstantPolyRing(constants=["s"])
+    R = da.ConstantRing(constants=["t"])
+    S = da.ConstantRing(constants=["s"])
     t = R.gen("t")
     s = S.gen("s")
     phi = da.RingMorphism(source=R, target=S, mapping={t: 1 + s})
@@ -26,7 +26,7 @@ def test_derivative_under_diff_ring_morphism():
     assert F(u[1]) == 2 * v * v[1]
 
 def test_diff_morphism_implicit_base_identity():
-    R = da.ConstantPolyRing(constants=["t"])
+    R = da.ConstantRing(constants=["t"])
     t = R.gen("t")
     A = da.DifferentialRing(functions=["u"], base_ring=R)
     B = da.DifferentialRing(functions=["v"], base_ring=R)
@@ -36,7 +36,7 @@ def test_diff_morphism_implicit_base_identity():
     assert F(t) == t
 
 def test_diff_morphism_implicit_base_from_QQ():
-    R = da.ConstantPolyRing(constants=["t"])
+    R = da.ConstantRing(constants=["t"])
     A = da.DifferentialRing(functions=["u"])
     B = da.DifferentialRing(functions=["v"], base_ring=R)
     u = A.gen("u")

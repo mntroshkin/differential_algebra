@@ -30,7 +30,7 @@ def test_partial_derivative():
     assert (u * u[1] ** 2 * u[2]).d(u[1]) == 2 * u * u[1] * u[2]
 
 def test_coefficient():
-    R = da.ConstantPolyRing(constants=["t"], ring_name="R")
+    R = da.ConstantRing(constants=["t"], ring_name="R")
     t = R.gen("t")
     A = da.DifferentialRing(functions=["u"], base_ring=R, ring_name="A")
     u = A.gen("u")

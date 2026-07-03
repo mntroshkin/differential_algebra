@@ -3,7 +3,7 @@ from .strategies import polynomial
 
 import diffalgebra as da
 
-R = da.ConstantPolyRing(constants=["a", "b", "c", "d", "e"])
+R = da.ConstantRing(constants=["a", "b", "c", "d", "e"])
 
 polynomial_small = polynomial(ring=R, max_terms=3)
 polynomial_medium = polynomial(ring=R, max_terms=10)

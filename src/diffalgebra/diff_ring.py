@@ -227,7 +227,7 @@ class DifferentialPolynomial:
             raise TypeError(f"Derivative order {order} must be an non-negative integer")
         if order < 0:
             raise ValueError(f"Derivative order {order} must be an non-negative integer")
-        if not isinstance(gen, ConstantGenerator | FuncGenerator):
+        if not isinstance(gen, ConstantGenerator | FuncGeneratorDerivative):
             raise InvalidGeneratorError(f"{gen} is not a valid ring generator")
         if order == 0:
             return self
@@ -302,16 +302,13 @@ class DifferentialPolynomial:
                         return
                     else:
                         j = _exponent_in_term(term, var_id, k - 1)
-                        factor = Fraction(1, j + 1) * var[k - 1] ** (j + 1)
-                        h_factors_ith = tuple(DiffAtom(derivative, power)
-                                           for derivative, power in monomial[var_id]
-                                           if derivative < k - 1)
-                        h_monomial = tuple(h_factors_ith
-                                           if k == var_id else factors
-                                           for k, factors in enumerate(monomial))
-                        h = DifferentialPolynomial(self._ring, terms=[DiffMonomial(h_monomial, coefficient)])
-                        integral_found += h * factor
-                        new_integrand -= h.diff() * factor
+                        new_factor = DiffFactor(var_id, k - 1, j + 1)
+                        const = Fraction(1, j + 1)
+                        filtered_factors = tuple(filter(lambda factor: factor.gen_id != var_id or factor.derivative < k - 1, monomial))
+                        h = DifferentialPolynomial(self._ring, terms=[DiffMonomial(filtered_factors, coefficient)])
+                        new_factor = DifferentialPolynomial(self._ring, terms=[DiffMonomial(factors=(new_factor, ), coefficient=const)])
+                        integral_found += h * new_factor
+                        new_integrand -= h.diff() * new_factor
                 integral_remaining = new_integrand.integral()
                 if integral_remaining is None:
                     return

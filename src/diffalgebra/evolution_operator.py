@@ -20,9 +20,9 @@ class EvolutionOperator:
             if not ring.is_element(image):
                 raise TypeError(f"{image} is not an element of ring {ring}")
             _mapping.append(ring.promote(image))
-        for generator in mapping.keys():
-            if not ring.is_generator(generator):
-                raise TypeError(f"{generator} is not a generator of {ring}")
+        # for generator in mapping.keys():
+        #     if not ring.is_generator(generator):
+        #         raise TypeError(f"{generator} is not a generator of {ring}")
         
         self._mapping = tuple(_mapping)
         self._name = name

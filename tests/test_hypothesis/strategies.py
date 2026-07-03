@@ -1,6 +1,7 @@
 from hypothesis import strategies as st
 import diffalgebra as da
 from diffalgebra.constant_ring import Monomial
+from diffalgebra.diff_ring import DiffMonomial, DiffFactor
 
 
 @st.composite
@@ -11,7 +12,7 @@ def polynomial(draw, ring: da.ConstantRing, max_terms: int = 5) -> da.ConstantPo
                                     exponents=st.lists(st.integers(min_value=0, max_value=5),
                                                        min_size=gen_count, max_size=gen_count).map(tuple), 
                                     coefficient=st.integers(min_value=-5, max_value=5)), 
-                            max_size=max_terms).map(tuple))
+                            max_size=max_terms))
     return da.ConstantPolynomial(ring, terms)
 
 
@@ -21,10 +22,11 @@ def diff_polynomial(draw, ring: da.DifferentialRing,
     gens = ring.gens()
     gen_count = len(gens)
 
-    terms = draw(st.lists(st.tuples(st.lists(st.lists(st.integers(min_value=1, max_value=3),
-                                                    min_size=0, 
-                                                    max_size=max_nonlinearity).map(enumerate).map(list),
-                                            min_size=gen_count, max_size=gen_count).map(tuple),
-                                    st.integers(min_value=-5, max_value=5)),
-                                    min_size=0, max_size=max_terms))
+    terms = draw(st.lists(st.builds(DiffMonomial, factors=st.lists(st.builds(DiffFactor, 
+                                                                             gen_id=st.integers(min_value=0, max_value=gen_count - 1),
+                                                                             derivative=st.integers(min_value=0, max_value=3),
+                                                                             power=st.integers(min_value=0, max_value=3)),
+                                                                    max_size=max_nonlinearity).map(tuple),
+                                                    coefficient=st.integers(min_value=-5, max_value=5)),
+                        max_size=max_terms))
     return da.DifferentialPolynomial(ring, terms)

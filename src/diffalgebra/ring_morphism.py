@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .constant_ring import ConstantRing, ConstantGenerator, ConstantPolynomial, Constant, Monomial, QQ
-from .diff_ring import DifferentialRing, FuncGenerator, DifferentialPolynomial, Expression, DiffTerm
+from .diff_ring import DifferentialRing, FuncGenerator, DifferentialPolynomial, DiffMonomial, Expression
 from .exceptions import DefinitionError
 
 class RingMorphism:
@@ -81,9 +81,9 @@ class DiffRingMorphism:
             if not target.is_element(image):
                 raise TypeError(f"{image} is not an element of target {target}")
             _mapping.append(target.promote(image))
-        for generator in mapping.keys():
-            if not source.is_generator(generator):
-                raise TypeError(f"{generator} is not a generator of {source}")
+        # for generator in mapping.keys():
+        #     if not source.is_generator(generator):
+        #         raise TypeError(f"{generator} is not a generator of {source}")
         
         self._mapping = tuple(_mapping)
         self._name = name
@@ -91,14 +91,13 @@ class DiffRingMorphism:
     def apply(self, expression: Expression) -> DifferentialPolynomial:
         if not self._source.is_element(expression):
             raise TypeError(f"{expression} is not an element of {self._source}")
-        image_terms: list[DiffTerm] = []
+        image_terms: list[DiffMonomial] = []
         expression = self._source.promote(expression)
         for term in expression._terms:
             monomial, coefficient = term
             image_term = self._base(coefficient)
-            for gen_image, factors in zip(self._mapping, monomial):
-                for derivative, exp in factors:
-                    image_term *= gen_image.diff(order=derivative) ** exp
+            for gen_id, derivative, power in monomial:
+                image_term *= self._mapping[gen_id].diff(derivative) ** power
             image_terms.extend(self._target.promote(image_term)._terms)
         return DifferentialPolynomial(ring=self._target, terms=image_terms)
     

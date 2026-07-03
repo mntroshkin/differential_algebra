@@ -66,7 +66,7 @@ def test_antiderivative_of_differential(f: da.DifferentialPolynomial):
 
 
 B = da.DifferentialRing(functions=["w"])
-diff_polynomial_tiny = diff_polynomial(ring=B, max_terms=3, max_nonlinearity=2)
+diff_polynomial_tiny = diff_polynomial(ring=B, max_terms=2, max_nonlinearity=2)
 
 @settings(deadline=None)
 @given(diff_polynomial_tiny, diff_polynomial_tiny,

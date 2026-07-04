@@ -4,7 +4,7 @@ A minimal symbolic differential algebra library.
 
 
 **Disclaimer:** This is a learning project, not a production-grade library.
-For serious research-level tools, I recommend checking out the section *Suggested alternatives* below.
+For serious research-level tools, I recommend checking out the links at <https://gdeq.org/Category:Software>.
 
 ## Background and motivation
 
@@ -92,5 +92,3 @@ print(f"[∂/∂t, ∂/∂s](u) = {d_dts - d_dst}")
 +480*(u_x)^2*u_xx+16*u*u_6+56*u_x*u_5+110*u_xx*u_4+70*(u_xxx)^2+u_8
 > [∂/∂t, ∂/∂s](u) = 0
 ```
-
-## Suggested alternatives

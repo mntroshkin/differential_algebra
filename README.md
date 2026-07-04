@@ -6,7 +6,7 @@ A minimal symbolic differential algebra library.
 **Disclaimer:** This is a learning project, not a production-grade library.
 For serious research-level tools, I recommend checking out the section *Suggested alternatives* below.
 
-## Why this exists
+## Background and motivation
 
 During my thesis research, I was working with PDEs of the form:
 
@@ -17,14 +17,14 @@ for example, the KdV equation $u_t = 6 u u_x + u_{xxx}$.
 To manipulate expressions such as the right-hand side of those equations (*differential polynomials*), I wrote some some ad-hoc Python scripts. 
 Later, I expanded and consolidated them into the first version of this library, as a personal exploration in the design of computer symbolic algebra tools.
 
-## What it can do
+## Features
 
 - Perform arithmetic with unknown symbolic functions of one spatial variable and their derivatives;
 - Detect total derivatives and integrate them;
 - Compute substitutions via homomorphisms between differential rings;
 - Check whether two differential equations of the form $u_t = F(u, u_x, \dots)$ and $u_s = G(u, u_x, \dots)$ are compatible; same for systems of PDEs in several functions $(u(x), v(x), \dots)$.
 
-## What it cannot do
+## Limitations
 
 - Only supports symbolic functions of one independent variable and polynomials in their derivatives;
 - Rational and transcendental functions are not implemented;

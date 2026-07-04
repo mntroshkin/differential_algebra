@@ -59,7 +59,7 @@ d_dt = EvolutionOperator(ring=R, mapping={u: F})
 d_ds = EvolutionOperator(ring=R, mapping={u: G})
 ```
 
-Then we evaluate $\frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right)$ and check that $\left[\frac{\partial}{\partial t}, \frac{\partial}{\partial s}\right]\!(u) := \frac{\partial}{\partial t}\!\left( \frac{\partial u}{\partial s} \right) - \frac{\partial}{\partial s}\!\left( \frac{\partial u}{\partial t} \right) = 0$, that is, mixed partial derivatives commute, and the two equations are compatible:
+Then we evaluate $\frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right)$ and check that $\left[\frac{\partial}{\partial t}, \frac{\partial}{\partial s}\right](u) := \frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right) - \frac{\partial}{\partial s}\left( \frac{\partial u}{\partial t} \right) = 0$, that is, mixed partial derivatives commute, and the two equations are compatible:
 
 ```python
 print(f"∂/∂t(∂u/∂s) = {d_dt(d_ds(u))}")

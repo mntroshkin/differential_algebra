@@ -10,7 +10,7 @@ For serious research-level tools, I recommend checking out the section *Suggeste
 
 During my thesis research, I was working with PDEs of the form:
 
-$$u_t = F(u, u_x, u_{xx},\, \dots),$$
+$$u_t = F(u, u_x, u_{xx}, \dots),$$
 
 for example, the KdV equation $u_t = 6 u u_x + u_{xxx}$.
 
@@ -22,7 +22,7 @@ Later, I expanded and consolidated them into the first version of this library, 
 - Perform arithmetic with unknown symbolic functions of one spatial variable and their derivatives;
 - Detect total derivatives and integrate them;
 - Compute substitutions via homomorphisms between differential rings;
-- Check whether two differential equations of the form $u_t = F(u, u_x,\, \dots)$ and $u_s = G(u, u_x, \, \dots)$ are compatible; same for systems of PDEs in several functions $(u(x), v(x), \dots)$.
+- Check whether two differential equations of the form $u_t = F(u, u_x, \dots)$ and $u_s = G(u, u_x, \dots)$ are compatible; same for systems of PDEs in several functions $(u(x), v(x), \dots)$.
 
 ## What it cannot do
 
@@ -34,7 +34,7 @@ Later, I expanded and consolidated them into the first version of this library, 
 
 ## Example: the KdV equation and its first higher symmetry
 
-We initialize a differential ring $R=\mathbb{Q}\{u\}$ in one symbolic function $u$, enter the KdV equation by hand and obtain the second equation of KdV hierarchy with a library function:
+We initialize a differential ring $R$ in one symbolic function $u$, enter the KdV equation by hand and obtain the second equation of KdV hierarchy with a library function:
 
 ```python
 from diffalgebra import DifferentialRing, KdV_hierarchy, EvolutionOperator

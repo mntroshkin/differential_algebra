@@ -14,7 +14,7 @@ $$u_t = F(u, u_x, u_{xx}, \dots),$$
 
 for example, the KdV equation $u_t = 6 u u_x + u_{xxx}$.
 
-To manipulate expressions such as the right-hand side of those equations (*differential polynomials*), I wrote some some ad-hoc Python scripts. 
+To manipulate expressions such as the right-hand side of those equations (*differential polynomials*), I wrote some ad-hoc Python scripts. 
 Later, I expanded and consolidated them into the first version of this library, as a personal exploration in the design of computer symbolic algebra tools.
 
 ## Features
@@ -28,8 +28,27 @@ Later, I expanded and consolidated them into the first version of this library, 
 
 - Only supports symbolic functions of one independent variable and polynomials in their derivatives;
 - Rational and transcendental functions are not implemented;
-- No integration with the broader CAS ecosystems;
+- No integration with other computer algebra systems;
 - No performance optimizations for large expressions.
+
+## Installation and running tests
+
+Clone the repository with
+```bash
+git clone https://github.com/mntroshkin/diffalgebra.git
+```
+
+Navigate to the root directory of the project and install with
+```bash
+pip install -e .
+```
+
+Run all tests with
+```bash
+pytest
+```
+
+Note: `hypothesis`-powered property tests might take >10s to run in total, since they check many random examples in each test.
 
 
 ## Example: the KdV equation and its first higher symmetry
@@ -47,9 +66,9 @@ print(f"F = {F}")
 print(f"G = {G}")
 ```
 
-```
-F = 6*u*u_x+u_xxx
-G = 30*u^2*u_x+10*u*u_xxx+20*u_x*u_xx+u_5
+```text
+> F = 6*u*u_x+u_xxx
+> G = 30*u^2*u_x+10*u*u_xxx+20*u_x*u_xx+u_5
 ```
 
 We create two derivations $\frac{\partial}{\partial t}$ and $\frac{\partial}{\partial s}$ encoding the equations $\frac{\partial u}{\partial t} = F(u, u_x, \dots)$ and $\frac{\partial u}{\partial s} = G(u, u_x, \dots)$:
@@ -62,14 +81,16 @@ d_ds = EvolutionOperator(ring=R, mapping={u: G})
 Then we evaluate $\frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right)$ and check that $\left[\frac{\partial}{\partial t}, \frac{\partial}{\partial s}\right] (u) := \frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right) - \frac{\partial}{\partial s}\left( \frac{\partial u}{\partial t} \right) = 0$, that is, mixed partial derivatives commute, and the two equations are compatible:
 
 ```python
-print(f"∂/∂t(∂u/∂s) = {d_dt(d_ds(u))}")
-print(f"[∂/∂t, ∂/∂s](u) = {d_dt(d_ds(u)) - d_ds(d_dt(u))}")
+d_dts = d_dt(d_ds(u))
+d_dst = d_ds(d_dt(u))
+print(f"∂/∂t(∂u/∂s) = {d_dts}")
+print(f"[∂/∂t, ∂/∂s](u) = {d_dts - d_dst}")
 ```
 
-```
-∂/∂t(∂u/∂s) = 540*u^2*(u_x)^2+180*u^3*u_xx+480*u*u_x*u_xxx+300*u*(u_xx)^2+90*u^2*u_4
+```text
+> ∂/∂t(∂u/∂s) = 540*u^2*(u_x)^2+180*u^3*u_xx+480*u*u_x*u_xxx+300*u*(u_xx)^2+90*u^2*u_4
 +480*(u_x)^2*u_xx+16*u*u_6+56*u_x*u_5+110*u_xx*u_4+70*(u_xxx)^2+u_8
-[∂/∂t, ∂/∂s](u) = 0
+> [∂/∂t, ∂/∂s](u) = 0
 ```
 
 ## Suggested alternatives

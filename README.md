@@ -1,7 +1,6 @@
 # diffalgebra
 
-A minimal symbolic differential algebra library.
-
+A symbolic differential algebra library, created for thesis calculations and as an exercise in computer algebra implementation.
 
 **Disclaimer:** This is a learning project, not a production-grade library.
 For serious research-level tools, I recommend checking out the links at <https://gdeq.org/Category:Software>.
@@ -12,7 +11,7 @@ During my thesis research, I was working with PDEs of the form:
 
 $$u_t = F(u, u_x, u_{xx}, \dots),$$
 
-for example, the KdV equation $u_t = 6 u u_x + u_{xxx}$.
+for example, the Korteweg-de Vries (KdV) equation $u_t = 6 u u_x + u_{xxx}$.
 
 To manipulate expressions such as the right-hand side of those equations (*differential polynomials*), I wrote some ad-hoc Python scripts. 
 Later, I expanded and consolidated them into the first version of this library, as a personal exploration in the design of computer symbolic algebra tools.
@@ -23,33 +22,6 @@ Later, I expanded and consolidated them into the first version of this library, 
 - Detect total derivatives and integrate them;
 - Compute substitutions via homomorphisms between differential rings;
 - Check whether two differential equations of the form $u_t = F(u, u_x, \dots)$ and $u_s = G(u, u_x, \dots)$ are compatible; same for systems of PDEs in several functions $(u(x), v(x), \dots)$.
-
-## Limitations
-
-- Only supports symbolic functions of one independent variable and polynomials in their derivatives;
-- Rational and transcendental functions are not implemented;
-- No integration with other computer algebra systems;
-- No performance optimizations for large expressions.
-
-## Installation and running tests
-
-Clone the repository with
-```bash
-git clone https://github.com/mntroshkin/diffalgebra.git
-```
-
-Navigate to the root directory of the project and install with
-```bash
-pip install -e .
-```
-
-Run all tests with
-```bash
-pytest
-```
-
-Note: `hypothesis`-powered property tests might take >10s to run in total, since they check many random examples in each test.
-
 
 ## Example: the KdV equation and its first higher symmetry
 
@@ -92,3 +64,38 @@ print(f"[∂/∂t, ∂/∂s](u) = {d_dts - d_dst}")
 +480*(u_x)^2*u_xx+16*u*u_6+56*u_x*u_5+110*u_xx*u_4+70*(u_xxx)^2+u_8
 > [∂/∂t, ∂/∂s](u) = 0
 ```
+
+## Limitations
+
+- Only supports symbolic functions of one independent variable and polynomials in their derivatives;
+- Rational and transcendental functions are not implemented;
+- No integration with other computer algebra systems;
+- No performance optimizations for large expressions.
+
+## Installation and running tests
+
+Clone the repository with
+```bash
+git clone https://github.com/mntroshkin/diffalgebra.git
+```
+
+Navigate to the root directory of the project and install with
+```bash
+pip install -e .
+```
+
+Run all tests with
+```bash
+pytest
+```
+
+Note: `hypothesis`-powered property tests might take >10s to run in total, since they check many random examples in each test.
+
+
+## Potential refinements
+
+**Memoization of derivatives.** Currently, differential ring homomorphisms recompute derivatives naively on each occurrence. Memoizing higher derivatives on first retrieval could be the natural next step; however, given the actual scale of my thesis calculations, I chose not to implement it.
+
+## References
+
+* Dickey L. A. *Soliton Equations and Hamiltonian Systems.*

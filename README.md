@@ -25,44 +25,52 @@ Later, I expanded and consolidated them into the first version of this library, 
 
 ## Example: the KdV equation and its first higher symmetry
 
-We initialize a differential ring $R$ in one symbolic function $u$, enter the KdV equation by hand and obtain the second equation of KdV hierarchy with a library function:
+We initialize a differential ring $R$ in one symbolic function $u$ and obtain its generator:
 
 ```python
-from diffalgebra import DifferentialRing, KdV_hierarchy, EvolutionOperator
-
-R = DifferentialRing(functions=["u"])
-u = R.gen("u")
-F = 6*u*u.diff() + u.diff(order=3)
-G = KdV_hierarchy(variable=u, order=2)
-print(f"F = {F}")
-print(f"G = {G}")
+>>> from diffalgebra import DifferentialRing
+>>> R = DifferentialRing(functions=["u"])
+>>> u = R.gen("u")
 ```
 
-```text
-> F = 6*u*u_x+u_xxx
-> G = 30*u^2*u_x+10*u*u_xxx+20*u_x*u_xx+u_5
-```
-
-We create two derivations $\frac{\partial}{\partial t}$ and $\frac{\partial}{\partial s}$ encoding the equations $\frac{\partial u}{\partial t} = F(u, u_x, \dots)$ and $\frac{\partial u}{\partial s} = G(u, u_x, \dots)$:
+We enter the right-hand side of the KdV equation $F = 6uu_x + u_{xxx}$ by hand:
 
 ```python
-d_dt = EvolutionOperator(ring=R, mapping={u: F})
-d_ds = EvolutionOperator(ring=R, mapping={u: G})
+>>> F = 6*u*u.diff() + u.diff(order=3)
+>>> F
+6*u*u_x+u_xxx
 ```
 
-Then we evaluate $\frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right)$ and check that $\left[\frac{\partial}{\partial t}, \frac{\partial}{\partial s}\right] (u) := \frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right) - \frac{\partial}{\partial s}\left( \frac{\partial u}{\partial t} \right) = 0$, that is, mixed partial derivatives commute, and the two equations are compatible:
+We obtain the right-hand side of the second equation from KdV hierarchy from the library function:
+```python
+>>> from diffalgebra import KdV_hierachy
+>>> G = KdV_hierarchy(variable=u, order=2)
+>>> G
+30*u^2*u_x+10*u*u_xxx+20*u_x*u_xx+u_5
+```
+
+We create two derivations $\frac{\partial}{\partial t}$ and $\frac{\partial}{\partial s}$ encoding the first two KdV equations $\frac{\partial u}{\partial t} = F(u, u_x, \dots)$ and $\frac{\partial u}{\partial s} = G(u, u_x, \dots)$:
 
 ```python
-d_dts = d_dt(d_ds(u))
-d_dst = d_ds(d_dt(u))
-print(f"∂/∂t(∂u/∂s) = {d_dts}")
-print(f"[∂/∂t, ∂/∂s](u) = {d_dts - d_dst}")
+>>> from diffalgebra import EvolutionOperator
+>>> d_dt = EvolutionOperator(ring=R, mapping={u: F})
+>>> d_ds = EvolutionOperator(ring=R, mapping={u: G})
 ```
 
-```text
-> ∂/∂t(∂u/∂s) = 540*u^2*(u_x)^2+180*u^3*u_xx+480*u*u_x*u_xxx+300*u*(u_xx)^2+90*u^2*u_4
-+480*(u_x)^2*u_xx+16*u*u_6+56*u_x*u_5+110*u_xx*u_4+70*(u_xxx)^2+u_8
-> [∂/∂t, ∂/∂s](u) = 0
+We can evaluate those derivations on any elements of $R$, for example, we compute $\frac{\partial}{\partial t} (u^2)$ - check that it satisfies the identity $\frac{\partial}{\partial t} (u^2) = 2uu_t$!
+
+```python
+>>> d_dt(u ** 2)
+12*u^2*u_x+2*u*u_xxx
+```
+
+Finally, we check that $\left[\frac{\partial}{\partial t}, \frac{\partial}{\partial s}\right] (u) := \frac{\partial}{\partial t}\left( \frac{\partial u}{\partial s} \right) - \frac{\partial}{\partial s}\left( \frac{\partial u}{\partial t} \right) = 0$, that is, mixed partial derivatives commute, and the two equations are compatible:
+
+```python
+>>> d_dts = d_dt(d_ds(u))
+>>> d_dst = d_ds(d_dt(u))
+>>> d_dts - d_dst
+0
 ```
 
 ## Limitations

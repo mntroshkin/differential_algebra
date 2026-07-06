@@ -50,6 +50,9 @@ class WrongRingError(RingValueError):
     """Raised when a generator belongs to a different ring."""
     pass
 
+class NonIntegrableError(RingValueError):
+    """Raised when attempting to integrate an expression which is not a total derivative."""
+
 # Specific warning
 class ReservedWordWarning(RingWarning):
     """Warning for using reserved words as symbols."""

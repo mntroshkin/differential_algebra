@@ -5,6 +5,6 @@ def KdV_hierarchy(variable: FuncGenerator, order: int = 1) -> DifferentialPolyno
         raise ValueError
     K = variable[1]
     for i in range(order):
-        L = K.integral()
+        L = K.integrate()
         K = L.diff(3) + 4 * variable * L.diff() + 2 * variable[1] * L
     return K

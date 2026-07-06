@@ -2,7 +2,7 @@ from typing import Optional, Sequence, NamedTuple
 from fractions import Fraction
 
 from .exceptions import RingMismatchError, SymbolNameError
-from .exceptions import InvalidGeneratorError, IncompatibleRingsError
+from .exceptions import InvalidGeneratorError, IncompatibleRingsError, NonIntegrableError
 from .constant_ring import ConstantRing, ConstantPolynomial, ConstantGenerator, QQ, Constant, _partial_for_const
 
 
@@ -281,25 +281,25 @@ class DifferentialPolynomial:
                 return term.coefficient
         return 0
     
-    def integral(self) -> DifferentialPolynomial | None:
+    def integrate(self) -> DifferentialPolynomial:
         if self == 0:
             return self._ring.promote(0)
         if self.coefficient(1) != 0:
-            return
+            raise NonIntegrableError
         for var_id, var in enumerate(self._ring.gens()):
             if self._highest_derivative(var) != -1:
                 new_integrand = self._ring.promote(0)
                 integral_found = self._ring.promote(0)
                 k = self._highest_derivative(var)
                 if k == 0:
-                    return
+                    raise NonIntegrableError
                 for term in self._terms:
                     monomial, coefficient = term
                     j = _exponent_in_term(term, var_id, k)
                     if j == 0:
                         new_integrand += DifferentialPolynomial(self._ring, terms=[term])
                     elif j > 1:
-                        return
+                        raise NonIntegrableError
                     else:
                         j = _exponent_in_term(term, var_id, k - 1)
                         new_factor = DiffFactor(var_id, k - 1, j + 1)
@@ -309,11 +309,9 @@ class DifferentialPolynomial:
                         new_factor = DifferentialPolynomial(self._ring, terms=[DiffMonomial(factors=(new_factor, ), coefficient=const)])
                         integral_found += h * new_factor
                         new_integrand -= h.diff() * new_factor
-                integral_remaining = new_integrand.integral()
-                if integral_remaining is None:
-                    return
+                integral_remaining = new_integrand.integrate()
                 return integral_found + integral_remaining
-                        
+        raise NonIntegrableError
 
 def total_derivative(expression: Expression, order: int = 1) -> Expression:
     if order < 0:

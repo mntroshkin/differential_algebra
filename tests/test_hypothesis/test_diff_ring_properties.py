@@ -61,7 +61,7 @@ def test_variational_derivative_of_differential(f: da.DifferentialPolynomial):
 @given(diff_polynomial_medium)
 def test_antiderivative_of_differential(f: da.DifferentialPolynomial):
     f0 = f - f.coefficient(1)
-    assert f0.diff().integral() == f0
+    assert f0.diff().integrate() == f0
 
 
 

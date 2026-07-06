@@ -139,7 +139,7 @@ class ConstantPolynomial:
         else:
             return self.d(var, order - 1).d(var)
     
-    def integral(self, var: ConstantGenerator) -> ConstantPolynomial:
+    def integrate(self, var: ConstantGenerator) -> ConstantPolynomial:
         if not isinstance(var, ConstantGenerator):
             raise InvalidGeneratorError(f"{var} is not a valid ring generator")
         if self._ring != var._ring:

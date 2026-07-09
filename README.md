@@ -2,6 +2,8 @@
 
 A symbolic differential algebra library, created for thesis calculations and as an exercise in computer algebra implementation.
 
+A short tutorial is at <https://diffalgebra.readthedocs.io/en/latest/tutorial/>.
+
 **Disclaimer:** This is a learning project, not a production-grade library.
 For serious research-level tools, I recommend checking out the links at <https://gdeq.org/Category:Software>.
 

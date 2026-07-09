@@ -3,7 +3,7 @@ from diffalgebra import DifferentialRing, KdV_hierarchy, EvolutionOperator
 R = DifferentialRing(functions=["u"])
 u = R.gen("u")
 
-F = 6*u*u.diff() + u.diff(order=3)
+F = KdV_hierarchy(variable=u)
 G = KdV_hierarchy(variable=u, order=2)
 
 print(f"F = {F}")
